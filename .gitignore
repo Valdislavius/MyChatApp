@@ -1,0 +1,28 @@
+# build artifacts
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+
+# logs
+*.log
+
+# dotenv/секреты
+*.env
+.env
+.env.*
+
+# SQLite DB files (хранить БД в гите не нужно)
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# Publish output
+publish/
