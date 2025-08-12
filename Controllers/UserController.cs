@@ -12,17 +12,23 @@ namespace DevOpsChatApp.Controllers
     public class UsersController : ControllerBase
     {
         private readonly AppDbContext _context;
-
         public UsersController(AppDbContext context)
         {
             _context = context;
         }
 
+        public record UserAuthDto(string Username, string Password);
+
+        // Регистрация
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserRegistrationDto dto)
+        public async Task<IActionResult> Register(UserAuthDto dto)
         {
-            if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
-                return BadRequest("Пользователь с таким именем уже существует.");
+            if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
+                return BadRequest("Имя пользователя и пароль обязательны");
+
+            var exists = await _context.Users.AnyAsync(u => u.Username == dto.Username);
+            if (exists)
+                return Conflict("Пользователь уже существует");
 
             var user = new User
             {
@@ -33,7 +39,25 @@ namespace DevOpsChatApp.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok("Пользователь успешно зарегистрирован.");
+            return Ok(new { message = "Регистрация успешна" });
+        }
+
+        // Логин
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(UserAuthDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
+                return BadRequest("Имя пользователя и пароль обязательны");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
+            if (user == null)
+                return Unauthorized("Неверные данные");
+
+            var hash = HashPassword(dto.Password);
+            if (user.PasswordHash != hash)
+                return Unauthorized("Неверные данные");
+
+            return Ok(new { message = "Вход выполнен", username = user.Username });
         }
 
         private string HashPassword(string password)

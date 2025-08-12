@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Авторизация</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/CSS/style.css" />
 </head>
 <body>
     <div class="container">
@@ -24,46 +24,7 @@
         </div>
     </div>
 
-    <script>
-        function toggleForms() {
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const formTitle = document.getElementById('formTitle');
+    <script src="../JS/Auth.js"></script>
 
-            if (loginForm.classList.contains('visible')) {
-                loginForm.classList.replace('visible', 'hidden');
-                registerForm.classList.replace('hidden', 'visible');
-                formTitle.textContent = 'Регистрация в DevOps Chat';
-            } else {
-                registerForm.classList.replace('visible', 'hidden');
-                loginForm.classList.replace('hidden', 'visible');
-                formTitle.textContent = 'Вход в DevOps Chat';
-            }
-        }
-
-        async function register() {
-            const username = document.getElementById("regUsername").value;
-            const password = document.getElementById("regPassword").value;
-
-            const res = await fetch("/api/users/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password })
-            });
-
-            if (res.ok) {
-                localStorage.setItem("username", username);
-                location.href = "chat.html";
-            } else {
-                alert("Ошибка регистрации");
-            }
-        }
-
-        function login() {
-            const username = document.getElementById("username").value;
-            localStorage.setItem("username", username);
-            location.href = "chat.html";
-        }
-    </script>
 </body>
 </html>
