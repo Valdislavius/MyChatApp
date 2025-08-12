@@ -1,100 +1,31 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <meta charset="utf-8" />
-    <title>DevOps Chat</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
-    <link rel="stylesheet" href="/CSS/style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Чат</title>
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/chat.css" />
 </head>
-<body>
-    <div class="app-container">
-        <div class="sidebar">
-            <h3>Диалоги</h3>
-            <p>Пока пусто...</p>
-        </div>
+<body class="app">
 
-        <div class="chat-wrapper">
-            <div class="chat-header">
-                DevOps Chat
-                <div class="logout-wrapper">
-                    <button class="logout-button" onclick="logout()">X</button>
-                </div>
+    <header class="header">
+        <div class="title">Чат</div>
+        <div id="currentUser" class="user"></div>
+    </header>
+
+    <main class="chat">
+        <div id="messagesList" class="messages"></div>
+
+        <form id="messageForm" class="composer" autocomplete="off">
+            <div class="composer-field">
+                <input id="messageInput" type="text" placeholder="Введите сообщение..." required />
             </div>
+            <button type="submit" class="composer-send">Отправить</button>
+        </form>
+    </main>
 
-            <ul id="messageList" class="message-list"></ul>
-
-            <div class="message-input-area">
-                <input type="text" id="messageInput" placeholder="Введите сообщение..." />
-                <button onclick="sendMessage()">Отправить</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const username = localStorage.getItem("username");
-        if (!username) {
-            location.href = "auth.html";
-        }
-
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/chathub")
-            .build();
-
-        const messageList = document.getElementById("messageList");
-
-        // Функция рендеринга одного сообщения с разметкой по пользователю
-        function addMessage(user, message) {
-            const li = document.createElement("li");
-            if (user === username) {
-                li.textContent = message;
-                li.classList.add("message-right");
-            } else {
-                li.textContent = `${user}: ${message}`;
-                li.classList.add("message-left");
-            }
-            messageList.appendChild(li);
-        }
-
-        // Загрузка сообщений с сервера по текущему юзеру
-        async function loadMessages() {
-            try {
-                const res = await fetch(`/api/message/user/${username}`);
-                if (!res.ok) {
-                    alert("Не удалось загрузить сообщения");
-                    return;
-                }
-                const messages = await res.json();
-                messageList.innerHTML = "";
-                messages.reverse().forEach(m => {
-                    addMessage(m.user.username, m.content); // предполагается, что в ответе есть user с username
-                });
-                messageList.scrollTop = messageList.scrollHeight;
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        connection.on("ReceiveMessage", (user, message) => {
-            addMessage(user, message);
-            messageList.scrollTop = messageList.scrollHeight;
-        });
-
-        connection.start().then(loadMessages).catch(err => console.error(err.toString()));
-
-        function sendMessage() {
-            const message = document.getElementById("messageInput").value.trim();
-            if (message) {
-                connection.invoke("SendMessage", username, message)
-                    .catch(err => console.error(err.toString()));
-                document.getElementById("messageInput").value = '';
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem("username");
-            location.href = "auth.html";
-        }
-    </script>
-
+    <script src="/lib/signalr/signalr.js"></script>
+    <script src="/js/chat.js"></script>
 </body>
 </html>

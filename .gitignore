@@ -26,3 +26,8 @@ Thumbs.db
 
 # Publish output
 publish/
+
+#Node.js dependensies
+node_modules/
+npm-debug.log
+package-lock.json

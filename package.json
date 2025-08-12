@@ -1,0 +1,23 @@
+{
+  "name": "devopschatapp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Valdislavius/MyChatApp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Valdislavius/MyChatApp/issues"
+  },
+  "homepage": "https://github.com/Valdislavius/MyChatApp#readme",
+  "description": "",
+  "dependencies": {
+    "@microsoft/signalr": "^9.0.6"
+  }
+}

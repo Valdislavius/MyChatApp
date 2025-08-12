@@ -1,0 +1,110 @@
+﻿/* --- Токены темы --- */
+:root {
+    --bg: #0f141a;
+    --bg-elev: #17212b;
+    --bg-elev-2: #1e2835;
+    --border: #223244;
+    --text: #eef2f5;
+    --text-dim: #93a3b4;
+    --text-hint: #6f8598;
+    --accent: #23c2a6;
+    --accent-weak: #19a28a;
+    --accent-strong: #1bd1b1;
+    --danger: #ec3942;
+    --success: #18c29c;
+    --header-bg: #17212b;
+    --section-bg: #17212b;
+    --card-bg: #1f2a38;
+    --bubble-out: #203544;
+    --bubble-in: #1b2633;
+    --input-bg: #131b24;
+    --input-border: #2a3c4f;
+    --shadow-1: 0 8px 24px rgba(0,0,0,0.25);
+    --ring: 0 0 0 3px rgba(35, 194, 166, 0.25);
+    --radius: 12px;
+    --radius-lg: 18px;
+    --gap: 12px;
+    --gap-lg: 20px;
+}
+
+/* --- Reset --- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- Общие элементы --- */
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+    a:hover {
+        color: var(--accent-strong);
+    }
+
+button {
+    cursor: pointer;
+    font: inherit;
+    color: var(--text);
+    background: var(--accent);
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    transition: transform .1s ease, background .15s ease, box-shadow .15s ease;
+}
+
+    button:hover {
+        background: var(--accent-strong);
+        transform: translateY(-1px);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+input, textarea {
+    font: inherit;
+    color: var(--text);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+    input::placeholder, textarea::placeholder {
+        color: var(--text-hint);
+    }
+
+    input:focus, textarea:focus {
+        border-color: var(--accent);
+        box-shadow: var(--ring);
+    }
+
+/* --- Утилиты --- */
+.hidden {
+    display: none !important;
+}
+
+.link-ghost {
+    color: var(--text-dim);
+}
+
+    .link-ghost:hover {
+        color: var(--accent);
+    }
