@@ -1,5 +1,6 @@
 ﻿using DevOpsChatApp.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,7 +22,11 @@ builder.Services.AddControllers()
 builder.Services.AddSignalR();
 builder.Services.AddOpenApi();
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
+
 var app = builder.Build();
+app.UseSession();
 
 if (app.Environment.IsDevelopment())
 {
@@ -32,7 +37,7 @@ app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// перекидываем корень на auth.html
+// Редирект с корня на auth.html
 app.Use(async (context, next) =>
 {
     if (context.Request.Path == "/")
@@ -48,7 +53,21 @@ app.UseRouting();
 app.MapControllers();
 app.MapHub<DevOpsChatApp.Hubs.ChatHub>("/chathub");
 
-// Фоллбек: если путь не попал ни в API, ни в статику — отдаём auth.html
-app.MapFallbackToFile("/auth.html");
+// Кастомный fallback: не даём отдавать HTML для запросов к API
+app.MapFallback(async context =>
+{
+    if (context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.StatusCode = 404;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync("{\"error\":\"Not found\"}");
+        return;
+    }
+
+    // Для всех остальных отдаём auth.html
+    var path = Path.Combine(app.Environment.WebRootPath, "auth.html");
+    context.Response.ContentType = "text/html";
+    await context.Response.SendFileAsync(path);
+});
 
 app.Run();

@@ -57,7 +57,19 @@ namespace DevOpsChatApp.Controllers
             if (user.PasswordHash != hash)
                 return Unauthorized("Неверные данные");
 
+            HttpContext.Session.SetString("Username", user.Username);
+
             return Ok(new { message = "Вход выполнен", username = user.Username });
+        }
+
+        [HttpGet("current")]
+        public IActionResult CurrentUser()
+        {
+            var username = HttpContext.Session.GetString("Username");
+            if (string.IsNullOrEmpty(username))
+                return Unauthorized(new { error = "Не авторизован" });
+
+            return Ok(new { userName = username });
         }
 
         private string HashPassword(string password)

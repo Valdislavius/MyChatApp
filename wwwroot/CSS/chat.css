@@ -143,3 +143,23 @@
         padding: 12px 14px;
     }
 }
+
+.message {
+    padding: 4px 8px;
+    border-bottom: 1px solid #eee;
+}
+
+    .message .time {
+        color: gray;
+        font-size: 0.8em;
+        margin-right: 6px;
+    }
+
+    .message .user {
+        font-weight: bold;
+        margin-right: 4px;
+    }
+
+    .message .text {
+        color: #000;
+    }
