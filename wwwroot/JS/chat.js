@@ -30,6 +30,7 @@ async function loadCurrentUser() {
         }
     } catch (err) {
         console.error("❌ Ошибка при получении имени:", err);
+<<<<<<< HEAD
     }
 }
 
@@ -62,6 +63,43 @@ function appendMessage(user, message, timestamp, scrollCheck = true) {
     }
 }
 
+=======
+    }
+}
+
+// Проверка: юзер внизу чата?
+function isUserAtBottom() {
+    const threshold = 50;
+    return messagesList.scrollHeight - messagesList.scrollTop - messagesList.clientHeight < threshold;
+}
+
+// Прокрутка в самый низ
+function scrollToBottom() {
+    messagesList.scrollTop = messagesList.scrollHeight;
+}
+
+// Добавление сообщения
+function appendMessage(user, message, timestamp, scrollCheck = true) {
+    const isMine = user === currentUserEl.textContent.trim();
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add("message", isMine ? "out" : "in");
+    const timeStr = timestamp
+        ? new Date(timestamp).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
+        : new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+    msgDiv.innerHTML = `
+        <span class="user">${user}</span>
+        <span class="text">${message || ""}</span>
+        <span class="time">${timeStr}</span>
+    `;
+    const shouldScroll = !scrollCheck || isUserAtBottom();
+    messagesList.appendChild(msgDiv);
+    if (shouldScroll) {
+        scrollToBottom();
+    }
+}
+
+// Загрузка истории
+>>>>>>> 31f9c2340cab12ffbb395bb36971f1ae3002f914
 async function loadHistory() {
     try {
         const res = await fetch(API_MESSAGES, {
@@ -79,12 +117,23 @@ async function loadHistory() {
         messagesList.innerHTML = "";
         data.forEach(msg => appendMessage(msg.userName, msg.content, msg.timestamp, false));
 
+<<<<<<< HEAD
         [0, 50, 150, 300].forEach(delay => setTimeout(scrollToBottom, delay));
+=======
+        // Множественные повторы для гарантии старта внизу
+        [0, 50, 150, 300].forEach(delay => {
+            setTimeout(scrollToBottom, delay);
+        });
+>>>>>>> 31f9c2340cab12ffbb395bb36971f1ae3002f914
     } catch (err) {
         console.error("❌ История не загрузилась:", err);
     }
 }
 
+<<<<<<< HEAD
+=======
+// Отправка сообщения
+>>>>>>> 31f9c2340cab12ffbb395bb36971f1ae3002f914
 async function sendMessage() {
     const user = currentUserEl?.textContent?.trim();
     const message = messageInput.value.trim();
@@ -97,19 +146,34 @@ async function sendMessage() {
     }
 }
 
+<<<<<<< HEAD
+=======
+// Приём сообщений через SignalR
+>>>>>>> 31f9c2340cab12ffbb395bb36971f1ae3002f914
 connection.on("ReceiveMessage", (user, message, timestamp) => {
     appendMessage(user, message, timestamp, true);
 });
 
+<<<<<<< HEAD
+=======
+// События
+>>>>>>> 31f9c2340cab12ffbb395bb36971f1ae3002f914
 messageForm.addEventListener("submit", e => {
     e.preventDefault();
     sendMessage();
 });
-
 logoutBtn.addEventListener("click", () => {
     window.location.href = "/auth.html";
 });
 
+<<<<<<< HEAD
+logoutBtn.addEventListener("click", () => {
+    window.location.href = "/auth.html";
+});
+
+=======
+// Старт
+>>>>>>> 31f9c2340cab12ffbb395bb36971f1ae3002f914
 async function start() {
     try {
         await loadCurrentUser();

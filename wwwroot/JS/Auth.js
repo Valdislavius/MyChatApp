@@ -13,6 +13,10 @@
         fromEl.classList.remove("active");
         fromEl.classList.add("slide-out-left");
         toEl.classList.add("active", "slide-in-right");
+<<<<<<< HEAD
+=======
+
+>>>>>>> 31f9c2340cab12ffbb395bb36971f1ae3002f914
         setTimeout(() => {
             fromEl.classList.remove("slide-out-left");
             toEl.classList.remove("slide-in-right");
@@ -38,7 +42,6 @@
         e.preventDefault();
         const { username, password } = readCreds(loginForm);
         if (!username || !password) return alert("Введите имя пользователя и пароль");
-
         try {
             const res = await fetch("/api/Users/login", {
                 method: "POST",
@@ -57,7 +60,6 @@
         e.preventDefault();
         const { username, password } = readCreds(registerForm);
         if (!username || !password) return alert("Введите имя пользователя и пароль");
-
         try {
             const res = await fetch("/api/Users/register", {
                 method: "POST",
