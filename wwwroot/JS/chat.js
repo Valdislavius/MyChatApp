@@ -1,23 +1,20 @@
 ﻿const API_BASE = "https://localhost:7128";
 const API_MESSAGES = `${API_BASE}/api/Message`;
-const API_CURRENT_USER = `${API_BASE}/api/Users/current`; // правильный маршрут
+const API_CURRENT_USER = `${API_BASE}/api/Users/current`;
 const CHAT_HUB = `${API_BASE}/chathub`;
 
 const messagesList = document.getElementById("messagesList");
 const currentUserEl = document.getElementById("currentUser");
 const messageInput = document.getElementById("messageInput");
 const messageForm = document.getElementById("messageForm");
-
-if (!messagesList || !currentUserEl || !messageInput || !messageForm) {
-    console.error("❌ Не найдены необходимые элементы DOM (chat.html)");
-}
+const logoutBtn = document.getElementById("logoutBtn");
 
 const connection = new signalR.HubConnectionBuilder()
     .withUrl(CHAT_HUB)
     .configureLogging(signalR.LogLevel.Information)
     .build();
 
-// === Получение имени пользователя ===
+// Получаем текущее имя пользователя
 async function loadCurrentUser() {
     try {
         const res = await fetch(API_CURRENT_USER, { credentials: "include" });
@@ -25,19 +22,47 @@ async function loadCurrentUser() {
             const data = await res.json();
             if (data.userName) {
                 currentUserEl.textContent = data.userName;
-                console.log("Текущий пользователь:", data.userName);
-            } else {
-                console.warn("⚠ Сервер вернул пустое имя пользователя");
             }
         } else {
             console.warn("⚠ Не удалось получить имя пользователя:", res.status);
         }
     } catch (err) {
-        console.error("❌ Ошибка при загрузке имени пользователя:", err);
+        console.error("❌ Ошибка при получении имени:", err);
     }
 }
 
-// === Загрузка истории сообщений ===
+// Проверка: юзер внизу чата?
+function isUserAtBottom() {
+    const threshold = 50;
+    return messagesList.scrollHeight - messagesList.scrollTop - messagesList.clientHeight < threshold;
+}
+
+// Прокрутка в самый низ
+function scrollToBottom() {
+    messagesList.scrollTop = messagesList.scrollHeight;
+}
+
+// Добавление сообщения
+function appendMessage(user, message, timestamp, scrollCheck = true) {
+    const isMine = user === currentUserEl.textContent.trim();
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add("message", isMine ? "out" : "in");
+    const timeStr = timestamp
+        ? new Date(timestamp).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
+        : new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+    msgDiv.innerHTML = `
+        <span class="user">${user}</span>
+        <span class="text">${message || ""}</span>
+        <span class="time">${timeStr}</span>
+    `;
+    const shouldScroll = !scrollCheck || isUserAtBottom();
+    messagesList.appendChild(msgDiv);
+    if (shouldScroll) {
+        scrollToBottom();
+    }
+}
+
+// Загрузка истории
 async function loadHistory() {
     try {
         const res = await fetch(API_MESSAGES, {
@@ -46,82 +71,60 @@ async function loadHistory() {
             headers: { "Cache-Control": "no-cache" },
             credentials: "include"
         });
-
         if (!res.ok) {
-            const text = await res.text();
-            console.error(`Ошибка загрузки истории: HTTP ${res.status}`, text);
+            console.error(`Ошибка загрузки истории: ${res.status}`);
             return;
         }
-
         let data = await res.json();
-        // сортировка от старых к новым
         data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
         messagesList.innerHTML = "";
-        data.forEach(msg => appendMessage(msg.userName, msg.content, msg.timestamp));
+        data.forEach(msg => appendMessage(msg.userName, msg.content, msg.timestamp, false));
+
+        // Множественные повторы для гарантии старта внизу
+        [0, 50, 150, 300].forEach(delay => {
+            setTimeout(scrollToBottom, delay);
+        });
     } catch (err) {
         console.error("❌ История не загрузилась:", err);
     }
 }
 
-// === Отрисовка одного сообщения ===
-function appendMessage(user, message, timestamp) {
-    const msgDiv = document.createElement("div");
-
-    // Определяем, это моё или чужое сообщение
-    const isMine = user === currentUserEl.textContent.trim();
-    msgDiv.classList.add("message", isMine ? "out" : "in");
-
-    const time = timestamp
-        ? new Date(timestamp).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
-        : "";
-
-    msgDiv.innerHTML = `
-        <span class="user">${user}</span>
-        <span class="text">${message || ""}</span>
-        <span class="time">${time}</span>
-    `;
-
-    messagesList.appendChild(msgDiv);
-    messagesList.scrollTop = messagesList.scrollHeight;
-}
-
-// === Отправка нового сообщения ===
+// Отправка сообщения
 async function sendMessage() {
     const user = currentUserEl?.textContent?.trim();
     const message = messageInput.value.trim();
     if (!message || !user) return;
-
     try {
         await connection.invoke("SendMessage", user, message);
         messageInput.value = "";
     } catch (err) {
-        console.error("❌ Ошибка при отправке сообщения:", err);
+        console.error("❌ Ошибка отправки:", err);
     }
 }
 
-// === Приём сообщений через SignalR ===
+// Приём сообщений через SignalR
 connection.on("ReceiveMessage", (user, message, timestamp) => {
-    appendMessage(user, message, timestamp);
+    appendMessage(user, message, timestamp, true);
 });
 
-// === Отправка формы ===
+// События
 messageForm.addEventListener("submit", e => {
     e.preventDefault();
     sendMessage();
 });
+logoutBtn.addEventListener("click", () => {
+    window.location.href = "/auth.html";
+});
 
-// === Старт приложения ===
+// Старт
 async function start() {
     try {
-        await loadCurrentUser(); // получаем имя пользователя
-        await connection.start(); // подключаем SignalR
-        console.log("✅ SignalR Connected.");
-        await loadHistory(); // загружаем историю сообщений
+        await loadCurrentUser();
+        await connection.start();
+        await loadHistory();
     } catch (err) {
-        console.error("❌ Ошибка подключения SignalR:", err);
+        console.error("❌ Ошибка подключения:", err);
         setTimeout(start, 5000);
     }
 }
-
 start();

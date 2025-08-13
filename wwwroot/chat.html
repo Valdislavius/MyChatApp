@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Чат</title>
-    <link rel="stylesheet" href="/css/base.css" />
+    <title>General</title>
     <link rel="stylesheet" href="/css/chat.css" />
 </head>
 <body class="app">
     <header class="header">
         <div class="chat-room">General</div>
-        <div class="chat-user" id="currentUser"></div>
+        <div class="chat-user-wrapper">
+            <div id="currentUser" class="chat-user"></div>
+            <div class="user-menu">
+                <button id="logoutBtn">Выйти</button>
+            </div>
+        </div>
     </header>
+
     <main class="chat">
         <div id="messagesList" class="messages"></div>
         <form id="messageForm" class="composer" autocomplete="off">
@@ -21,6 +26,7 @@
             <button type="submit" class="composer-send">Отправить</button>
         </form>
     </main>
+
     <script src="/lib/signalr/signalr.js"></script>
     <script src="/js/chat.js"></script>
 </body>
