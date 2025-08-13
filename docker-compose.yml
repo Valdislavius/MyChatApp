@@ -1,0 +1,12 @@
+services:
+  devopschatapp:
+    container_name: devopschatapp
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:8080"
+    volumes:
+      - /srv/devopschatapp/DBData:/app/Data
+      - /srv/devopschatapp/DPKeys:/root/.aspnet/DataProtection-Keys
+    restart: unless-stopped

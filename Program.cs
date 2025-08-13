@@ -28,6 +28,8 @@ builder.Services.AddSession();
 var app = builder.Build();
 app.UseSession();
 
+app.UseStaticFiles();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -69,5 +71,17 @@ app.MapFallback(async context =>
     context.Response.ContentType = "text/html";
     await context.Response.SendFileAsync(path);
 });
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.Run();

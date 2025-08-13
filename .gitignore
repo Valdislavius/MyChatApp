@@ -12,12 +12,12 @@ Thumbs.db
 # logs
 *.log
 
-# dotenv/секреты
-*.env
+# dotenv / секреты
 .env
 .env.*
+*.env
 
-# SQLite DB files (хранить БД в гите не нужно)
+# SQLite DB files (не хранить БД в гите)
 *.db
 *.sqlite
 *.sqlite3
@@ -27,7 +27,10 @@ Thumbs.db
 # Publish output
 publish/
 
-#Node.js dependensies
+# Node.js dependencies
 node_modules/
 npm-debug.log
 package-lock.json
+
+# Docker image archives
+*.tar
